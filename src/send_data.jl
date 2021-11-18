@@ -39,10 +39,12 @@ function main(name, uid)
     # Send data until the last consumer has disconnected
     println("Now sending data...")
     lt = time()
+    # cursample = zeros(Float32, nchs)
     while have_consumers(outlet) != 0
         t = time()
         dt = t-lt
         if dt >= (1. / fs) # Regular sampling frequency
+            # cursample .+= (randn(Float32, nchs)*10) # smooth out noise
             push_sample(outlet,(randn(Float32, nchs)*50));
             lt = t
         end
