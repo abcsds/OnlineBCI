@@ -1,4 +1,4 @@
-using Random:randperm, seed!
+using Random:randperm, seed!, shuffle!
 using Statistics:mean, std, cov  # Some statistical functions
 using Plots  # Plotting library
 using HypothesisTests: MannWhitneyUTest, pvalue
@@ -105,22 +105,55 @@ This function increases one dimension: [trials x freqs x timestamps
 examples
 ```
 """
-function get_ERDS(x)
-    S = spectrogram(x[1,:], 128, 56, fs=128, window=hanning)
-    tf_maps = zeros(Float64, size(x)[1], size(S.power)...)
+function get_ERDS(x, fs=128)
+    # # DEBUG: println
+    # println("size of epoch: $(size(x)) [trials x samples]")
+    S = spectrogram(x[1,:], fs, 56, fs=fs, window=hanning)
+
+    # # DEBUG:
+    # println("Size of spectrogram: $(size(S.power))")
+
+    tf_maps = zeros(Float64, size(x)[1], size(S.power)...) # trials x frequency x time
     for i in 1:size(x)[1]
-        s = x[i,:]
-        # tf_maps[i,:,:] = amp2db.(abs2.(stft(s, 128, 56, fs=fs, window=hanning)))
-        tf_maps[i,:,:] = abs2.(stft(s, 128, 56, fs=fs, window=hanning))
+        s = x[1,:]
+        # tf_maps[i,:,:] = amp2db.(abs2.(stft(s, fs, 56, fs=fs, window=hanning)))
+        p = spectrogram(s, fs, 56, fs=fs, window=hanning).power
+        tf_maps[i,:,:] = abs2.(p)
     end
 
-    b_mask = -2 .<= [i-3 for i in S.time] .<= -1  # mask out the values not in the baseline time
-    s_base = mapslices(x-> x.*b_mask, tf_maps, dims=3) # spectrum baseline
-    s_base = dropdims(mapslices(mean, s_base, dims=(1,3)), dims=(1,3)) # one value per frequency
-    # FIXME: `BoundsError: attempt to access 3×65×0 Array{Float64, 3} at index [1, 1:65, 1]`
-    maps = mapslices(x-> x./s_base .- 1, tf_maps, dims=2)
-    # pvals = mapslices(x -> pvalue(MannWhitneyUTest(x, s_base)), erds_maps, dims=1)
-    # dropdims(pvals, dims=1)
+    # #DEBUG:
+    # println("size of tf_map: $(size(tf_maps)) [trials x frequency x time]")
+
+    b_mask = -2 .<= [i-3 for i in S.time] .<= -1  # mask out the values not in the time baseline
+
+    # TODO: baseline should be mean across trials?
+    s_base = tf_maps[:,:,b_mask] # select
+    s_base = dropdims(mean(s_base, dims=(3)), dims=(3))
+
+    # println("Size of baseline: $(size(s_base)) [trials x freq]")
+
+    maps = mapslices(x-> x./s_base .- 1, tf_maps, dims=(1,2))
+    # # DEBUG println
+    # println("size of maps: $(size(maps))")
 
     return maps
+end
+
+
+function perm_test(X, b=1024)
+    n = length(X)
+    # diff = kstest(X, Y)
+    # pool = [X; Y]
+    # count = 0
+    # diffs = []
+    for i in 1:b
+        shuffle!(pool)
+        diff_star = kstest(pool[1:n], pool[n:end])
+        push!(diffs, diff_star)
+        if abs(diff_star) >= abs(diff)
+            count += 1
+        end
+    end
+    p_value = (count+1) / (b+1)
+    return diff, p_value, diffs
 end

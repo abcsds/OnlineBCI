@@ -50,36 +50,45 @@ function main(fname::String)
     epochs_d = mapslices(l_deriv, epochs; dims=(2,3))
 
     # ERD/S maps
-    erds_maps = mapslices(get_ERDS, epochs_d; dims=(3))
+    # println("Derived epochs size: $(size(epochs_d)) [Trials x Samples x Nchs]")
 
-    #
+    for ch in 1:nchs
+        epochs_d[:,:,ch]
+    erds_maps = mapslices(get_ERDS, epochs_d; dims=(1,2))
+
+    printlnt("Size of ERDS maps: $(size(erds_maps)) []")
+
+    # TODO: statistical analysis
+
+    # Plot
+    # avg =
 
 
 end
 main("raw/000.xdf")
 
-# hardcode
-streams = read_xdf("raw/000.xdf")
-ds = 2
-ms = 1
-
-
-### ERDS maps
-
-x = epochs_d[:,:,1]
-S = spectrogram(x[1,:], 128, 56, fs=128, window=hanning)
-tf_maps = zeros(Float64, size(x)[1], size(S.power)...)
-for i in 1:size(x)[1]
-    s = x[i,:]
-    # tf_maps[i,:,:] = amp2db.(abs2.(stft(s, 128, 56, fs=fs, window=hanning)))
-    tf_maps[i,:,:] = abs2.(stft(s, 128, 56, fs=fs, window=hanning))
-end
-
-b_mask = -2 .<= [i-3 for i in S.time] .<= -1  # mask out the values not in the baseline time
-s_base = mapslices(x-> x.*b_mask, tf_maps, dims=3) # spectrum baseline
-s_base = dropdims(mapslices(mean, s_base, dims=(1,3)), dims=(1,3)) # one value per frequency
-maps = mapslices(x-> x./s_base .- 1, tf_maps, dims=2)
-# pvals = mapslices(x -> pvalue(MannWhitneyUTest(x, s_base)), erds_maps, dims=1)
+# # hardcode
+# streams = read_xdf("raw/000.xdf")
+# ds = 2
+# ms = 1
+#
+#
+# ### ERDS maps
+#
+# x = epochs_d[:,:,1]
+# S = spectrogram(x[1,:], 128, 56, fs=128, window=hanning)
+# tf_maps = zeros(Float64, size(x)[1], size(S.power)...)
+# for i in 1:size(x)[1]
+#     s = x[i,:]
+#     # tf_maps[i,:,:] = amp2db.(abs2.(stft(s, 128, 56, fs=fs, window=hanning)))
+#     tf_maps[i,:,:] = abs2.(stft(s, 128, 56, fs=fs, window=hanning))
+# end
+#
+# b_mask = -2 .<= [i-3 for i in S.time] .<= -1  # mask out the values not in the baseline time
+# s_base = mapslices(x-> x.*b_mask, tf_maps, dims=3) # spectrum baseline
+# s_base = dropdims(mapslices(mean, s_base, dims=(1,3)), dims=(1,3)) # one value per frequency
+# maps = mapslices(x-> x./s_base .- 1, tf_maps, dims=2)
+# # pvals = mapslices(x -> pvalue(MannWhitneyUTest(x, s_base)), erds_maps, dims=1)
 
 
 ### power spectrum
