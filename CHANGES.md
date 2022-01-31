@@ -8,3 +8,15 @@ Update training protocol. Add examples from julia LSL library for online decodin
 Add real data example file `001.xdf`.
 Update ERDS maps for debugging.
 Add permutation test utility.
+
+# 31.01.2021
+After vacations and finishing the course this project was origially made for, progress for this specific repo might be slow. Here are some notes to pick it up:
+`000.xdf` was recorded with the psychopy paradigm, but no subject. It thus contains markers, and random noise. It is enough to train a useless CSP and sLDA model.
+Training seemed to be working, but ERDS maps don't, so no frequency band selection can be done yet.
+A subject was measured and the file `001.xdf` contains their data.
+TODO:
+- Implement ERDS maps as in Faller 2012.
+- Run offline script with subject file.
+- Verify model accuracy and feature separability.
+- Retrain model with selected features.
+- Create online script that applies offline model and online feedback about the classifier.

@@ -33,6 +33,8 @@ Montage reference under `doc/settings/electrodes_NBCI2.pdf`. Composed of 16 elec
   "Pz",
  ]
 ```
+GND - Fpz
+REF - M2
 
 ### Preprocessing
 
@@ -83,3 +85,7 @@ Raw data is stored in the [`xdf`](https://github.com/sccn/xdf/wiki/Specification
 
 Subject 000 is no subject (just noise).
 Subject 001 is a real test subject.
+
+## References
+
+Faller, J., Vidaurre, C., Solis-Escalante, T., Neuper, C., & Scherer, R. (2012). Autocalibration and recurrent adaptation: Towards a plug and play online ERD-BCI. IEEE Transactions on Neural Systems and Rehabilitation Engineering, 20(3), 313-319.
