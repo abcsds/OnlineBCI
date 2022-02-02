@@ -20,3 +20,17 @@ TODO:
 - Verify model accuracy and feature separability.
 - Retrain model with selected features.
 - Create online script that applies offline model and online feedback about the classifier.
+
+# 02.02.2022
+Offline analysis does not work with file `001`. An exploration julia file was created as a notebook to be run with Atom's Juno environment.
+
+Julia libraries:
+```
+XDF
+IJulia
+Plots
+HypothesisTests
+DSP
+```
+
+ERROR: garbage collector throws an error and closes julia every time it runs. This is only reproducible in Office computer.
