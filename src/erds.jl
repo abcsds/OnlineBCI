@@ -58,24 +58,27 @@ epochs_d = mapslices(l_deriv, epochs; dims=(2,3))
 
 x = epochs_d[:,:,1] # C3
 
-# S = spectrogram(x[1,:], 128, 56, fs=128, window=hanning)
-# plot(S.time .+ w[1], S.freq, S.power, ylims=(0,20), xlab="Time (s)", ylab="Frequency (Hz)", fill=true)
-# vline!([0], c="black", lab=nothing)
-# title!("Spectrogram")
+S = spectrogram(x[1,:], 128, 56, fs=128, window=hanning)
+plot(S.time .+ w[1], S.freq, S.power, ylims=(0,20), xlab="Time (s)", ylab="Frequency (Hz)", fill=true, c=:viridis)
+vline!([0], c="black", lab=nothing)
+title!("Spectrogram")
+savefig("doc/img/Single_Spectrogram.png")
 
 
-# lbl = ([S.time;] .+ w[1])  .< 0
-# for f in 1:length(S.freq)
-#     A = S.power[f,:]
-#     R = mean(A .* bl)
-#     S.power[f,:] = (A .- R) ./ R
-# end
+lbl = ([S.time;] .+ w[1])  .< 0
+for f in 1:length(S.freq)
+    A = S.power[f,:]
+    R = mean(A .* bl)
+    S.power[f,:] = (A .- R) ./ R
+end
 
-# plot(S.time .+ w[1], S.freq, S.power,
-#     ylims=(0,20),
-#     xlab="Time (s)", ylab="Frequency (Hz)", fill=true)
-# vline!([0], c="black", lab=nothing)
-# title!("ERDS map")
+plot(S.time .+ w[1], S.freq, S.power,
+    ylims=(0,20),
+    xlab="Time (s)", ylab="Frequency (Hz)", fill=true, c=:viridis)
+vline!([0], c="black", lab=nothing)
+title!("ERDS map")
+savefig("doc/img/Single_ERDS_map.png")
+
 
 
 # Now for all channels
@@ -93,15 +96,24 @@ for tr in 1:size(x, 1)
     end
 end
 
-plot(map_time, S.freq, mean(maps, dims=1)[1,:,:], xlab="Time (s)", ylab="Frequency (Hz)", fill=true)
+plot(map_time, S.freq, mean(maps, dims=1)[1,:,:], xlab="Time (s)", ylab="Frequency (Hz)", fill=true, c=:viridis)
 vline!([0], c="black", lab=nothing)
 title!("average ERDS map")
+savefig("doc/img/AvgERDS.png")
+
+plot(map_time, S.freq, mean(maps, dims=1)[1,:,:], ylim=(0,20), xlab="Time (s)", ylab="Frequency (Hz)", fill=true, c=:viridis)
+vline!([0], c="black", lab=nothing)
+title!("average ERDS map")
+savefig("doc/img/AvgERDS_020.png")
+
 
 p = [pvalue(MannWhitneyUTest(maps[mrks.==1,f,s], maps[mrks.==2,f,s])) for f in 1:length(map_freqs), s in 1:length(map_times)]
 mask = p .<= 0.05;
 
-plot(map_time, S.freq, mean(maps, dims=1)[1,:,:] .* mask, xlab="Time (s)", ylab="Frequency (Hz)", fill=true)
+plot(map_time, S.freq, mean(maps, dims=1)[1,:,:] .* mask, ylim=(0,20), xlab="Time (s)", ylab="Frequency (Hz)", fill=true, c=:viridis)
 vline!([0], c="black", lab=nothing)
 title!("Masked average ERDS map")
+savefig("doc/img/AvgERDS_Utest.png")
+
 
 
