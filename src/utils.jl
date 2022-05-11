@@ -58,8 +58,8 @@ Bandpass filter a 1D signal from 3.5 to 35hz with a zero-phase 4th order Butterw
 filt_buf = mapslices(bpfilter, buf; dims=2)
 ```
 """
-function bpfilter(x)
-  responsetype = Bandpass(3.5, 35; fs=128) # TODO: static frequency
+function bpfilter(x, lb=3.5, hb=35)
+  responsetype = Bandpass(lb, hb; fs=128) # TODO: static frequency
   designmethod = Butterworth(4)
   filtfilt(digitalfilter(responsetype, designmethod), x)
 end
